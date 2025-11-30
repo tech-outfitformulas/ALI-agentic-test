@@ -1,0 +1,9 @@
+streamlit
+langchain
+langchain-openai
+langgraph
+python-dotenv
+firebase-admin
+pydantic
+google-generativeai
+requests
