@@ -8,9 +8,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.store.base import GetOp
-from src.graph import app as graph_app
-from src.repositories.outfit_repository import OutfitRepository
-from src.memory.firestore_store import FirestoreStore
+try:
+    from src.graph import app as graph_app
+    from src.repositories.outfit_repository import OutfitRepository
+    from src.memory.firestore_store import FirestoreStore
+except ImportError:
+    # Fallback for when running directly inside src/
+    from graph import app as graph_app
+    from repositories.outfit_repository import OutfitRepository
+    from memory.firestore_store import FirestoreStore
 
 st.set_page_config(page_title="ALI Agent v2", layout="wide")
 
