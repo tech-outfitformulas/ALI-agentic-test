@@ -10,7 +10,30 @@ def initialize_firebase():
         # 1. Try loading from Streamlit Secrets (Deployment)
         if "FIREBASE_CREDENTIALS_JSON" in st.secrets:
             # st.secrets returns it as a string if defined as such in TOML
-            cred_json = json.loads(st.secrets["FIREBASE_CREDENTIALS_JSON"])
+            secret_str = st.secrets["FIREBASE_CREDENTIALS_JSON"]
+            try:
+                cred_json = json.loads(secret_str)
+            except json.JSONDecodeError:
+                # Fallback: strict JSON requires double quotes and no trailing commas.
+                # Sometimes copying into TOML adds extra escaping to \n.
+                # Let's try to fix common issues.
+                try:
+                    # If the string has literal newlines instead of \n, replace them?
+                    # Or if it has \\n that needs to be \n?
+                    # Actually, often the issue is control characters.
+                    # Let's try strict=False
+                    cred_json = json.loads(secret_str, strict=False)
+                except:
+                    # Last resort: The user might have put the DICT directly in secrets.toml 
+                    # [FIREBASE_CREDENTIALS_JSON]
+                    # type = "service_account"
+                    # ...
+                    # In that case, st.secrets["FIREBASE_CREDENTIALS_JSON"] is ALREADY a dict (AttrDict).
+                    if isinstance(secret_str, dict) or hasattr(secret_str, "type"):
+                        cred_json = dict(secret_str)
+                    else:
+                        raise
+            
             cred = credentials.Certificate(cred_json)
         
         # 2. Try loading from Environment Variable (Alternative)
