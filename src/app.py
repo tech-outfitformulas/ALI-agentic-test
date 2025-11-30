@@ -12,11 +12,15 @@ try:
     from src.graph import app as graph_app
     from src.repositories.outfit_repository import OutfitRepository
     from src.memory.firestore_store import FirestoreStore
-except ImportError:
+except ImportError as e:
     # Fallback for when running directly inside src/
-    from graph import app as graph_app
-    from repositories.outfit_repository import OutfitRepository
-    from memory.firestore_store import FirestoreStore
+    try:
+        from graph import app as graph_app
+        from repositories.outfit_repository import OutfitRepository
+        from memory.firestore_store import FirestoreStore
+    except ImportError as e2:
+        st.error(f"Failed to import modules. Root error: {e}. Fallback error: {e2}")
+        st.stop()
 
 st.set_page_config(page_title="ALI Agent v2", layout="wide")
 
